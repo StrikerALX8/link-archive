@@ -2,14 +2,75 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Link Archive</title>
+    <title>Random Link Archive</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        button { margin: 5px; padding: 10px 15px; font-size: 16px; }
+        #linkContainer { margin-top: 20px; font-size: 18px; }
+        #linkDisplay { display: inline-block; margin-right: 10px; word-break: break-all; }
+        input[type="file"] { margin-top: 20px; }
+    </style>
 </head>
 <body>
-    <h1>Archived Links</h1>
-    <ul>
-        <li><a href="https://example.com/link1" target="_blank">Link 1</a></li>
-        <li><a href="https://example.com/link2" target="_blank">Link 2</a></li>
-        <!-- Add more links here -->
-    </ul>
+    <h1>Random Link Archive</h1>
+
+    <input type="file" id="fileInput" accept=".txt">
+    <p id="fileStatus">No file loaded</p>
+
+    <button onclick="generateRandomLink()" id="generateBtn" disabled>Get Random Link</button>
+
+    <div id="linkContainer">
+        <span id="linkDisplay">No link yet</span>
+        <button onclick="copyLink()">Copy</button>
+    </div>
+    <div>
+        <button onclick="openLink()">Open Link</button>
+    </div>
+
+    <script>
+        let links = [];
+        let currentLink = "";
+        let currentIndex = 0;
+
+        // Load file
+        document.getElementById("fileInput").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                links = e.target.result.split(/\r?\n/).filter(line => line.trim() !== "");
+                if (links.length === 0) {
+                    document.getElementById("fileStatus").textContent = "File is empty!";
+                    document.getElementById("generateBtn").disabled = true;
+                } else {
+                    document.getElementById("fileStatus").textContent = `${links.length} links loaded`;
+                    document.getElementById("generateBtn").disabled = false;
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // Generate random link
+        function generateRandomLink() {
+            if (links.length === 0) return alert("Load a file first!");
+            currentIndex = Math.floor(Math.random() * links.length);
+            currentLink = links[currentIndex];
+            document.getElementById("linkDisplay").textContent = `Link (${currentIndex + 1}): ${currentLink}`;
+        }
+
+        // Copy link
+        function copyLink() {
+            if (!currentLink) return alert("Generate a link first!");
+            navigator.clipboard.writeText(currentLink)
+                .then(() => alert("Copied to clipboard!"))
+                .catch(() => alert("Failed to copy."));
+        }
+
+        // Open link
+        function openLink() {
+            if (!currentLink) return alert("Generate a link first!");
+            window.open(currentLink, "_blank");
+        }
+    </script>
 </body>
 </html>
